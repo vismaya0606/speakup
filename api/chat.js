@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   let geminiRes;
@@ -79,7 +79,17 @@ export default async function handler(req, res) {
   const data = await geminiRes.json();
 
   if (!geminiRes.ok) {
-    return res.status(geminiRes.status).json({ error: data?.error?.message || 'Gemini API error' });
+    const errMsg = data?.error?.message || 'Gemini API error';
+    // Surface quota/rate-limit errors with retry guidance
+    if (geminiRes.status === 429) {
+      const retryMatch = errMsg.match(/retry in ([0-9.]+)s/i);
+      const retrySec = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : null;
+      const friendly = retrySec
+        ? `API quota exceeded. Please retry in ${retrySec} seconds.`
+        : 'API quota exceeded. Please wait a moment and try again.';
+      return res.status(429).json({ error: friendly });
+    }
+    return res.status(geminiRes.status).json({ error: errMsg });
   }
 
   // Extract text from Gemini response
