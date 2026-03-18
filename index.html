@@ -700,8 +700,9 @@
   </div>
 
   <div class="footer-note">
-    Powered by Claude AI + Web Speech API (Tamil Recognition + English TTS)<br>
-    தமிழில் பேசுங்கள் → English கேளுங்கள் 🎧
+    Powered by Gemini AI + Web Speech API (Tamil Recognition + English TTS)<br>
+    தமிழில் பேசுங்கள் → English கேளுங்கள் 🎧<br>
+    Thanks to Vismaya
   </div>
 
 </div>
@@ -837,7 +838,7 @@
     const text = contents.length
       ? Array.from(contents).map(el => el.textContent.trim()).join(' ')
       : stripHtml(bubble.innerHTML);
-    speakText(text, btn);
+    speakText(text + ' Thanks to Vismaya.', btn);
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
@@ -954,6 +955,7 @@ Highlight key words: <span class="highlight-word">word</span>
 <div class="section-content">[One simple tip. Be warm and encouraging!]</div>
 
 Rules: Only English. Short sentences. Kind tone. Topic: ${currentTopic}
+IMPORTANT: Output ONLY the 4 HTML sections above. No extra text, greetings, or closing remarks outside those sections.
 
 Student's question: ${userText}`;
   }
