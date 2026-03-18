@@ -962,6 +962,16 @@ Student's question: ${userText}`;
   })();
 
   // ── Send ──────────────────────────────────────────────────────────────────
+  async function callChatAPI(payload) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return { status: res.status, data };
+  }
+
   async function sendMessage() {
     const input = document.getElementById('user-input');
     const text = input.value.trim();
@@ -980,16 +990,19 @@ Student's question: ${userText}`;
     conversationHistory.push({ role: 'user', content: buildPrompt(text) });
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: conversationHistory,
-          sessionId,
-        })
-      });
+      let { status, data } = await callChatAPI({ messages: conversationHistory, sessionId });
 
-      const data = await res.json();
+      // Auto-retry once on rate limit
+      if (status === 429 && data.retryAfter) {
+        const secs = data.retryAfter;
+        for (let i = secs; i > 0; i--) {
+          setStatus('idle', `⏳ Rate limited — retrying in ${i}s…`);
+          await new Promise(r => setTimeout(r, 1000));
+        }
+        setStatus('idle', '⏳ Retrying…');
+        ({ status, data } = await callChatAPI({ messages: conversationHistory, sessionId }));
+      }
+
       removeTyping();
 
       if (data.content && data.content[0]) {
