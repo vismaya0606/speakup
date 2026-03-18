@@ -589,6 +589,67 @@
     line-height: 1.7;
   }
 
+  /* API Key Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    width: min(420px, 90vw);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-box h3 { font-size: 1rem; margin-bottom: 8px; color: var(--accent); }
+  .modal-box p { font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+  .modal-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: monospace;
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .modal-box input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-btn {
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+  .modal-btn-save { background: var(--accent); color: #fff; }
+  .modal-btn-cancel { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+  /* API Key status indicator */
+  .api-key-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .api-key-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .api-key-btn.key-set { border-color: #4ecdc4; color: #4ecdc4; }
+
   @media (max-width: 600px) {
     h1 { font-size: 1.5rem; }
     #chat-window { height: 320px; }
@@ -599,6 +660,19 @@
 </head>
 <body>
 <div class="container">
+
+  <!-- API Key Modal -->
+  <div class="modal-overlay" id="api-key-modal">
+    <div class="modal-box">
+      <h3>🔑 Enter Anthropic API Key</h3>
+      <p>To connect with the AI, enter your Anthropic API key. It is saved only in your browser (localStorage) and never sent anywhere except directly to Anthropic.</p>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" onclick="closeApiKeyModal()">Cancel</button>
+        <button class="modal-btn modal-btn-save" onclick="saveApiKey()">Save &amp; Connect</button>
+      </div>
+    </div>
+  </div>
 
   <header>
     <div class="logo-row">
@@ -611,6 +685,7 @@
       <span class="arrow-icon">→</span>
       <span class="lang-badge english">🔊 English Answer</span>
     </div>
+    <button class="api-key-btn" id="api-key-status-btn" onclick="openApiKeyModal()">🔑 Set API Key</button>
   </header>
 
   <div class="browser-notice" id="browser-notice">
@@ -954,11 +1029,60 @@ Rules: Only English. Short sentences. Kind tone. Topic: ${currentTopic}
 Student's question: ${userText}`;
   }
 
+  // ── API Key Management ────────────────────────────────────────────────────
+  function getApiKey() {
+    return localStorage.getItem('speakup_api_key') || '';
+  }
+
+  function updateApiKeyBtn() {
+    const btn = document.getElementById('api-key-status-btn');
+    if (getApiKey()) {
+      btn.textContent = '🔑 API Key ✓';
+      btn.classList.add('key-set');
+    } else {
+      btn.textContent = '🔑 Set API Key';
+      btn.classList.remove('key-set');
+    }
+  }
+
+  function openApiKeyModal() {
+    const input = document.getElementById('api-key-input');
+    input.value = getApiKey();
+    document.getElementById('api-key-modal').classList.add('open');
+    setTimeout(() => input.focus(), 100);
+  }
+
+  function closeApiKeyModal() {
+    document.getElementById('api-key-modal').classList.remove('open');
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (key) {
+      localStorage.setItem('speakup_api_key', key);
+    } else {
+      localStorage.removeItem('speakup_api_key');
+    }
+    updateApiKeyBtn();
+    closeApiKeyModal();
+  }
+
+  // Close modal on overlay click
+  document.getElementById('api-key-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeApiKeyModal();
+  });
+
   // ── Send ──────────────────────────────────────────────────────────────────
   async function sendMessage() {
     const input = document.getElementById('user-input');
     const text = input.value.trim();
     if (!text) return;
+
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      openApiKeyModal();
+      return;
+    }
 
     const btn = document.getElementById('send-btn');
     btn.disabled = true;
@@ -975,7 +1099,12 @@ Student's question: ${userText}`;
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 1000,
@@ -993,6 +1122,10 @@ Student's question: ${userText}`;
         if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
         appendAIMessage(aiText);
         setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+      } else if (data.error) {
+        appendAIMessage(`<div class="section-content" style="color:#e05c5c">⚠️ API Error: ${data.error.message}</div>`);
+        setStatus('idle', 'Error — please try again');
+        if (data.error.type === 'authentication_error') openApiKeyModal();
       } else {
         appendAIMessage('<div class="section-content">Sorry, could not get an answer. Please try again!</div>');
         setStatus('idle', 'Ready');
@@ -1015,6 +1148,9 @@ Student's question: ${userText}`;
 
   // Preload voices
   speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+
+  // Init API key button state
+  updateApiKeyBtn();
 </script>
 </body>
 </html>
