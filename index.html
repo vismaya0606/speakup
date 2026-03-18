@@ -954,6 +954,13 @@ Rules: Only English. Short sentences. Kind tone. Topic: ${currentTopic}
 Student's question: ${userText}`;
   }
 
+  // ── Session ID (anonymous, persists per browser) ──────────────────────────
+  const sessionId = (() => {
+    let id = sessionStorage.getItem('speakup_session');
+    if (!id) { id = `s_${Date.now()}_${Math.random().toString(36).slice(2,8)}`; sessionStorage.setItem('speakup_session', id); }
+    return id;
+  })();
+
   // ── Send ──────────────────────────────────────────────────────────────────
   async function sendMessage() {
     const input = document.getElementById('user-input');
@@ -973,14 +980,12 @@ Student's question: ${userText}`;
     conversationHistory.push({ role: 'user', content: buildPrompt(text) });
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: "You are SpeakUp, a patient English tutor for Tamil-speaking beginners. Respond only in simple English. Keep sentences short for text-to-speech. Use the HTML format given in the user message.",
-          messages: conversationHistory
+          messages: conversationHistory,
+          sessionId,
         })
       });
 
@@ -993,6 +998,9 @@ Student's question: ${userText}`;
         if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
         appendAIMessage(aiText);
         setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+      } else if (data.error) {
+        appendAIMessage(`<div class="section-content" style="color:#e05c5c">⚠️ Error: ${data.error}</div>`);
+        setStatus('idle', 'Error — please try again');
       } else {
         appendAIMessage('<div class="section-content">Sorry, could not get an answer. Please try again!</div>');
         setStatus('idle', 'Ready');
