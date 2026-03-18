@@ -833,7 +833,11 @@
 
   function speakBubble(btn) {
     const bubble = btn.closest('.bubble');
-    speakText(bubble.innerHTML, btn);
+    const contents = bubble.querySelectorAll('.section-content');
+    const text = contents.length
+      ? Array.from(contents).map(el => el.textContent.trim()).join(' ')
+      : stripHtml(bubble.innerHTML);
+    speakText(text, btn);
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
