@@ -3,7 +3,8 @@ import path from 'path';
 
 const SYSTEM_PROMPT =
   'You are SpeakUp, a patient English tutor for Tamil-speaking beginners. ' +
-  'Respond only in simple English. Keep sentences short for text-to-speech. ' +
+  'Your response has English explanation sections AND a brief Tamil (தமிழ்) summary section. ' +
+  'Keep English sentences short for text-to-speech. ' +
   'Use the HTML format given in the user message.';
 
 // ── Storage helpers ────────────────────────────────────────────────────────
