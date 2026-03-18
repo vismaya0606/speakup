@@ -962,6 +962,16 @@ Student's question: ${userText}`;
   })();
 
   // ── Send ──────────────────────────────────────────────────────────────────
+  async function callChatAPI(payload) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return { status: res.status, data };
+  }
+
   async function sendMessage() {
     const input = document.getElementById('user-input');
     const text = input.value.trim();
@@ -980,16 +990,19 @@ Student's question: ${userText}`;
     conversationHistory.push({ role: 'user', content: buildPrompt(text) });
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: conversationHistory,
-          sessionId,
-        })
-      });
+      let { status, data } = await callChatAPI({ messages: conversationHistory, sessionId });
 
-      const data = await res.json();
+      // Auto-retry up to 3 times on rate limit
+      for (let attempt = 0; attempt < 3 && status === 429 && data.retryAfter; attempt++) {
+        const secs = data.retryAfter;
+        for (let i = secs; i > 0; i--) {
+          setStatus('idle', `⏳ Rate limited — retrying in ${i}s…`);
+          await new Promise(r => setTimeout(r, 1000));
+        }
+        setStatus('idle', '⏳ Retrying…');
+        ({ status, data } = await callChatAPI({ messages: conversationHistory, sessionId }));
+      }
+
       removeTyping();
 
       if (data.content && data.content[0]) {
@@ -998,6 +1011,9 @@ Student's question: ${userText}`;
         if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
         appendAIMessage(aiText);
         setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+      } else if (status === 429) {
+        appendAIMessage('<div class="section-content" style="color:#e05c5c">⚠️ API quota exceeded. Please try again later.</div>');
+        setStatus('idle', 'Error — please try again');
       } else if (data.error) {
         appendAIMessage(`<div class="section-content" style="color:#e05c5c">⚠️ Error: ${data.error}</div>`);
         setStatus('idle', 'Error — please try again');
