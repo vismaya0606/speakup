@@ -84,10 +84,7 @@ export default async function handler(req, res) {
     if (geminiRes.status === 429) {
       const retryMatch = errMsg.match(/retry in ([0-9.]+)s/i);
       const retryAfter = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 60;
-      return res.status(429).json({
-        error: `API quota exceeded. Retrying in ${retryAfter} seconds…`,
-        retryAfter,
-      });
+      return res.status(429).json({ error: 'API quota exceeded.', retryAfter });
     }
     return res.status(geminiRes.status).json({ error: errMsg });
   }

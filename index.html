@@ -992,8 +992,8 @@ Student's question: ${userText}`;
     try {
       let { status, data } = await callChatAPI({ messages: conversationHistory, sessionId });
 
-      // Auto-retry once on rate limit
-      if (status === 429 && data.retryAfter) {
+      // Auto-retry up to 3 times on rate limit
+      for (let attempt = 0; attempt < 3 && status === 429 && data.retryAfter; attempt++) {
         const secs = data.retryAfter;
         for (let i = secs; i > 0; i--) {
           setStatus('idle', `⏳ Rate limited — retrying in ${i}s…`);
@@ -1011,6 +1011,9 @@ Student's question: ${userText}`;
         if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
         appendAIMessage(aiText);
         setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+      } else if (status === 429) {
+        appendAIMessage('<div class="section-content" style="color:#e05c5c">⚠️ API quota exceeded. Please try again later.</div>');
+        setStatus('idle', 'Error — please try again');
       } else if (data.error) {
         appendAIMessage(`<div class="section-content" style="color:#e05c5c">⚠️ Error: ${data.error}</div>`);
         setStatus('idle', 'Error — please try again');
