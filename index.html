@@ -838,7 +838,7 @@
     const text = contents.length
       ? Array.from(contents).map(el => el.textContent.trim()).join(' ')
       : stripHtml(bubble.innerHTML);
-    speakText(text, btn);
+    speakText(text + ' Thanks to Vismaya.', btn);
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
