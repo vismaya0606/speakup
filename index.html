@@ -285,64 +285,31 @@
     color: var(--text);
   }
 
-  /* Speak buttons on AI bubble */
-  .bubble-speak-btns {
+  /* Speak button on AI bubble */
+  .speak-bubble-btn {
     position: absolute;
     top: 8px; right: 8px;
-    display: flex;
-    gap: 4px;
-  }
-
-  .speak-bubble-btn {
     width: 28px; height: 28px;
     border-radius: 50%;
-    font-size: 0.72rem;
+    background: rgba(78,205,196,0.12);
+    border: 1px solid rgba(78,205,196,0.3);
+    color: var(--teal);
+    font-size: 0.75rem;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: all 0.2s;
   }
 
-  .speak-bubble-btn.speak-en-btn {
-    background: rgba(78,205,196,0.12);
-    border: 1px solid rgba(78,205,196,0.3);
-    color: var(--teal);
-  }
-
-  .speak-bubble-btn.speak-en-btn:hover { background: rgba(78,205,196,0.25); transform: scale(1.1); }
-
-  .speak-bubble-btn.speak-ta-btn {
-    background: rgba(192,132,252,0.12);
-    border: 1px solid rgba(192,132,252,0.3);
-    color: var(--tamil);
-  }
-
-  .speak-bubble-btn.speak-ta-btn:hover { background: rgba(192,132,252,0.25); transform: scale(1.1); }
+  .speak-bubble-btn:hover { background: rgba(78,205,196,0.25); transform: scale(1.1); }
 
   .speak-bubble-btn.playing {
+    background: rgba(78,205,196,0.3);
     animation: speaking-pulse 0.8s infinite;
   }
-
-  .speak-en-btn.playing { background: rgba(78,205,196,0.3); }
-  .speak-ta-btn.playing { background: rgba(192,132,252,0.3); }
 
   @keyframes speaking-pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(78,205,196,0.4); }
     50% { box-shadow: 0 0 0 7px rgba(78,205,196,0); }
-  }
-
-  .section-label.tamil-explain { color: var(--tamil); }
-
-  .section-content-tamil {
-    font-size: 0.9rem;
-    line-height: 1.7;
-    color: var(--text);
-    font-family: 'Noto Sans Tamil', sans-serif;
-    padding-right: 30px;
-    background: rgba(192,132,252,0.05);
-    border-left: 3px solid var(--tamil);
-    padding: 8px 12px;
-    border-radius: 0 8px 8px 0;
-    margin-top: 4px;
   }
 
   /* AI bubble sections */
@@ -357,52 +324,10 @@
   }
 
   .section-label:first-child { margin-top: 0; }
-  .section-label.translation  { color: var(--teal); }
-  .section-label.answer       { color: var(--accent); }
-  .section-label.usage        { color: var(--tamil); }
-  .section-label.tip          { color: #f9c74f; }
-  .section-label.tamil-explain { color: var(--tamil); border-top: 1px solid rgba(192,132,252,0.2); padding-top: 10px; margin-top: 12px; }
-
-  .tamil-content {
-    font-family: 'Noto Sans Tamil', sans-serif;
-    font-size: 0.88rem;
-    color: #d4b4fc;
-    background: rgba(192,132,252,0.06);
-    border-left: 3px solid var(--tamil);
-    border-radius: 0 8px 8px 0;
-    padding: 8px 12px;
-    margin-top: 4px;
-    line-height: 1.8;
-  }
-
-  /* Tamil speak button */
-  .speak-tamil-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 8px;
-    padding: 4px 10px;
-    border-radius: 16px;
-    background: rgba(192,132,252,0.12);
-    border: 1px solid rgba(192,132,252,0.35);
-    color: var(--tamil);
-    font-size: 0.72rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .speak-tamil-btn:hover { background: rgba(192,132,252,0.25); transform: scale(1.05); }
-
-  .speak-tamil-btn.playing {
-    background: rgba(192,132,252,0.3);
-    animation: speaking-pulse-tamil 0.8s infinite;
-  }
-
-  @keyframes speaking-pulse-tamil {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(192,132,252,0.4); }
-    50% { box-shadow: 0 0 0 6px rgba(192,132,252,0); }
-  }
+  .section-label.translation { color: var(--teal); }
+  .section-label.answer      { color: var(--accent); }
+  .section-label.usage       { color: var(--tamil); }
+  .section-label.tip         { color: #f9c74f; }
 
   .section-content {
     font-size: 0.9rem;
@@ -680,13 +605,11 @@
       <div class="logo-icon">🗣️</div>
       <h1>SpeakUp</h1>
     </div>
-    <p class="tagline">Speak Tamil · Get English explanation · Hear it in Tamil too</p>
+    <p class="tagline">Speak Tamil · Get English explanation · Hear it aloud</p>
     <div class="lang-badge-row">
       <span class="lang-badge tamil">🎤 தமிழில் பேசுங்கள்</span>
       <span class="arrow-icon">→</span>
       <span class="lang-badge english">🔊 English Answer</span>
-      <span class="arrow-icon">+</span>
-      <span class="lang-badge tamil">🔊 தமிழ் விளக்கம்</span>
     </div>
   </header>
 
@@ -725,10 +648,7 @@
     <div class="message ai">
       <div class="avatar ai">🤖</div>
       <div class="bubble">
-        <div class="bubble-speak-btns">
-          <button class="speak-bubble-btn speak-en-btn" onclick="speakBubble(this,'en')" title="Listen in English">🔊</button>
-          <button class="speak-bubble-btn speak-ta-btn" onclick="speakBubble(this,'ta')" title="தமிழில் கேளுங்கள்">🎵</button>
-        </div>
+        <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen">🔊</button>
         <div class="section-label answer">👋 வணக்கம்! Hello!</div>
         <div class="section-content">
           I am your <span class="highlight-word">SpeakUp</span> English tutor!
@@ -736,8 +656,6 @@
           I will explain it in English and read it out loud for you!
           <div class="example-sentence">Try saying: "Articles எப்படி use பண்றது?"</div>
         </div>
-        <div class="section-label tamil-explain">🔵 தமிழில் சுருக்கம்</div>
-        <div class="section-content-tamil">நான் உங்கள் SpeakUp English tutor! 🎤 mic பொத்தானை தட்டி தமிழில் உங்கள் சந்தேகம் சொல்லுங்கள் — நான் English-ல விளக்குவேன்!</div>
       </div>
     </div>
   </div>
@@ -782,8 +700,8 @@
   </div>
 
   <div class="footer-note">
-    Powered by Gemini AI + Web Speech API (Tamil Recognition + English &amp; Tamil TTS)<br>
-    தமிழில் பேசுங்கள் → English கேளுங்கள் + தமிழிலும் கேளுங்கள் 🎧<br>
+    Powered by Gemini AI + Web Speech API (Tamil Recognition + English TTS)<br>
+    தமிழில் பேசுங்கள் → English கேளுங்கள் 🎧<br>
     Thanks to Vismaya
   </div>
 
@@ -866,22 +784,19 @@
     }
   }
 
-  // ── Text-to-Speech ────────────────────────────────────────────────────────
+  // ── Text-to-Speech (English Output) ──────────────────────────────────────
   function stripHtml(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
     return (tmp.textContent || tmp.innerText || '').trim();
   }
 
-  function speakTextInLang(text, btn, lang) {
-    lang = lang || 'en';
-    const iconMap = { en: '🔊', ta: '🎵' };
-
+  function speakText(text, btn) {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
       if (activeSpeakBtn) {
         activeSpeakBtn.classList.remove('playing');
-        activeSpeakBtn.textContent = iconMap[activeSpeakBtn._lang] || '🔊';
+        activeSpeakBtn.textContent = '🔊';
       }
       if (activeSpeakBtn === btn) { activeSpeakBtn = null; return; }
     }
@@ -889,30 +804,19 @@
     const clean = stripHtml(text);
     if (!clean) return;
 
-    btn._lang = lang;
     const utter = new SpeechSynthesisUtterance(clean);
-    utter.lang  = lang === 'ta' ? 'ta-IN' : 'en-IN';
-    utter.rate  = parseFloat(document.getElementById('tts-speed').value);
+    utter.lang = 'en-IN';
+    utter.rate = parseFloat(document.getElementById('tts-speed').value);
     utter.pitch = 1;
 
     const voices = speechSynthesis.getVoices();
-    let voice;
-    if (lang === 'ta') {
-      voice = voices.find(v => v.lang === 'ta-IN')
-           || voices.find(v => v.lang.startsWith('ta'));
-    } else {
-      voice = voices.find(v => v.lang === 'en-IN')
-           || voices.find(v => v.lang.startsWith('en') && /india/i.test(v.name))
-           || voices.find(v => v.lang.startsWith('en'));
-    }
+    const voice = voices.find(v => v.lang === 'en-IN')
+               || voices.find(v => v.lang.startsWith('en') && /india/i.test(v.name))
+               || voices.find(v => v.lang.startsWith('en'));
     if (voice) utter.voice = voice;
 
-    const statusMsg = lang === 'ta'
-      ? '🔊 தமிழில் விளக்குகிறேன்...'
-      : '🔊 Speaking English explanation...';
-
     utter.onstart = () => {
-      setStatus('speaking', statusMsg);
+      setStatus('speaking', '🔊 Speaking English explanation...');
       btn.classList.add('playing');
       btn.textContent = '⏹️';
       activeSpeakBtn = btn;
@@ -921,81 +825,20 @@
     utter.onend = utter.onerror = () => {
       setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
       btn.classList.remove('playing');
-      btn.textContent = iconMap[lang] || '🔊';
+      btn.textContent = '🔊';
       activeSpeakBtn = null;
     };
 
     speechSynthesis.speak(utter);
   }
 
-  // kept for backward compat
-  function speakText(text, btn) { speakTextInLang(text, btn, 'en'); }
-
-  function speakBubble(btn, lang) {
-    lang = lang || 'en';
+  function speakBubble(btn) {
     const bubble = btn.closest('.bubble');
-    let text;
-    if (lang === 'ta') {
-      const taEl = bubble.querySelector('.section-content-tamil');
-      text = taEl ? taEl.textContent.trim() : '';
-      if (!text) { setStatus('idle', 'தமிழ் விளக்கம் இல்லை'); return; }
-    } else {
-      const contents = bubble.querySelectorAll('.section-content');
-      text = contents.length
-        ? Array.from(contents).map(el => el.textContent.trim()).join(' ')
-        : stripHtml(bubble.innerHTML);
-      text = text + ' Thanks to Vismaya.';
-    }
-    speakTextInLang(text, btn, lang);
-    // Exclude Tamil section from English TTS
-    const contents = bubble.querySelectorAll('.section-content:not(.tamil-content)');
+    const contents = bubble.querySelectorAll('.section-content');
     const text = contents.length
       ? Array.from(contents).map(el => el.textContent.trim()).join(' ')
       : stripHtml(bubble.innerHTML);
     speakText(text + ' Thanks to Vismaya.', btn);
-  }
-
-  function speakTamil(btn) {
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-      if (activeSpeakBtn) {
-        activeSpeakBtn.classList.remove('playing');
-        activeSpeakBtn.textContent = activeSpeakBtn.classList.contains('speak-tamil-btn') ? '🔊 தமிழில் கேளு' : '🔊';
-      }
-      if (activeSpeakBtn === btn) { activeSpeakBtn = null; return; }
-    }
-
-    const bubble = btn.closest('.bubble');
-    const tamilEl = bubble.querySelector('.tamil-content');
-    if (!tamilEl) return;
-    const text = tamilEl.textContent.trim();
-    if (!text) return;
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'ta-IN';
-    utter.rate = parseFloat(document.getElementById('tts-speed').value);
-    utter.pitch = 1;
-
-    const voices = speechSynthesis.getVoices();
-    const voice = voices.find(v => v.lang === 'ta-IN')
-               || voices.find(v => v.lang.startsWith('ta'));
-    if (voice) utter.voice = voice;
-
-    utter.onstart = () => {
-      setStatus('speaking', '🔊 தமிழில் பேசுகிறேன்...');
-      btn.classList.add('playing');
-      btn.innerHTML = '⏹️ நிறுத்து';
-      activeSpeakBtn = btn;
-    };
-
-    utter.onend = utter.onerror = () => {
-      setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
-      btn.classList.remove('playing');
-      btn.innerHTML = '🔊 தமிழில் கேளு';
-      activeSpeakBtn = null;
-    };
-
-    speechSynthesis.speak(utter);
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
@@ -1067,31 +910,12 @@
     div.innerHTML = `
       <div class="avatar ai">🤖</div>
       <div class="bubble">
-        <div class="bubble-speak-btns">
-          <button class="speak-bubble-btn speak-en-btn" onclick="speakBubble(this,'en')" title="Listen in English">🔊</button>
-          <button class="speak-bubble-btn speak-ta-btn" onclick="speakBubble(this,'ta')" title="தமிழில் கேளுங்கள்">🎵</button>
-        </div>
-        <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen in English">🔊</button>
+        <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen">🔊</button>
         ${html}
       </div>`;
     cw.appendChild(div);
-
-    // Inject Tamil speak button after tamil-content if present
-    const tamilContent = div.querySelector('.tamil-content');
-    if (tamilContent) {
-      const tamilBtn = document.createElement('button');
-      tamilBtn.className = 'speak-tamil-btn';
-      tamilBtn.innerHTML = '🔊 தமிழில் கேளு';
-      tamilBtn.title = 'Listen in Tamil';
-      tamilBtn.onclick = function() { speakTamil(this); };
-      tamilContent.appendChild(tamilBtn);
-    }
-
     scrollToBottom();
-    // Auto-play English after short delay
-    const enBtn = div.querySelector('.speak-en-btn');
-    setTimeout(() => speakBubble(enBtn, 'en'), 500);
-    // Auto-play English explanation after short delay
+    // Auto-play after short delay
     const btn = div.querySelector('.speak-bubble-btn');
     setTimeout(() => speakBubble(btn), 500);
   }
@@ -1111,13 +935,12 @@
 
 The student spoke/wrote their English doubt in Tamil. Your job:
 1. Understand what English concept they are asking about.
-2. Explain in English (simple, spoken-style for beginners).
-3. Also add a short Tamil summary so learners understand easily.
-4. Keep responses concise (read aloud by text-to-speech).
-5. Use this exact HTML structure:
+2. Respond ONLY in English — simple, spoken-style English for beginners.
+3. Keep responses concise (this is read aloud by text-to-speech).
+4. Use this exact HTML structure:
 
 <div class="section-label translation">🔍 What you asked</div>
-<div class="section-content">[1-2 sentences restating their question simply in English]</div>
+<div class="section-content">[1-2 sentences restating their question simply]</div>
 
 <div class="section-label answer">✅ The Answer</div>
 <div class="section-content">[Clear simple explanation. ${topicGuide[currentTopic]}]</div>
@@ -1131,15 +954,8 @@ Highlight key words: <span class="highlight-word">word</span>
 <div class="section-label tip">💡 Remember This</div>
 <div class="section-content">[One simple tip. Be warm and encouraging!]</div>
 
-<div class="section-label tamil-explain">🔵 தமிழில் சுருக்கம் (Tamil Summary)</div>
-<div class="section-content-tamil">[2-3 sentences in Tamil explaining the same concept simply, so Tamil learners understand better]</div>
-
-Rules: English sections in English only. Tamil section in Tamil only. Short sentences. Kind tone. Topic: ${currentTopic}
-<div class="section-label tamil-explain">🔤 தமிழ் விளக்கம்</div>
-<div class="section-content tamil-content">[2-3 sentences summarising the answer in Tamil language (தமிழில்). Help the student understand the concept in their native language.]</div>
-
-Rules: English for first 4 sections. Tamil only in the last section. Short sentences. Kind tone. Topic: ${currentTopic}
-IMPORTANT: Output ONLY the 5 HTML sections above. No extra text, greetings, or closing remarks outside those sections.
+Rules: Only English. Short sentences. Kind tone. Topic: ${currentTopic}
+IMPORTANT: Output ONLY the 4 HTML sections above. No extra text, greetings, or closing remarks outside those sections.
 
 Student's question: ${userText}`;
   }
