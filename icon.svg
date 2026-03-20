@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="120" fill="#0d0f14"/>
+  <!-- Gradient defs -->
+  <defs>
+    <linearGradient id="orbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4ecdc4"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+  </defs>
+  <!-- Orb circle -->
+  <circle cx="256" cy="210" r="100" fill="url(#orbGrad)" opacity="0.95"/>
+  <!-- Mic icon inside orb -->
+  <rect x="236" y="165" width="40" height="65" rx="20" fill="white"/>
+  <path d="M216 230 Q216 270 256 270 Q296 270 296 230" stroke="white" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <line x1="256" y1="270" x2="256" y2="290" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <line x1="235" y1="290" x2="277" y2="290" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <!-- Sound wave arcs -->
+  <path d="M150 340 Q256 300 362 340" stroke="url(#waveGrad)" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M180 370 Q256 340 332 370" stroke="url(#waveGrad)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M210 395 Q256 372 302 395" stroke="url(#waveGrad)" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.4"/>
+</svg>

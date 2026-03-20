@@ -1,0 +1,17 @@
+{
+  "name": "SpeakUp — Tamil to English with Vismaya",
+  "short_name": "SpeakUp",
+  "description": "Speak Tamil, learn English! Vismaya listens and explains in both English and Tamil.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0f14",
+  "theme_color": "#c084fc",
+  "lang": "ta",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": []
+}

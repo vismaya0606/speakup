@@ -2,8 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SpeakUp — Tamil Voice to English Tutor</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#c084fc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SpeakUp">
+<link rel="apple-touch-icon" href="/icon.svg">
+
+<!-- SEO & social sharing (WhatsApp, Instagram, etc.) -->
+<meta name="description" content="Speak Tamil, learn English! Vismaya listens in Tamil and explains in simple English with Tamil voice. Free, no app needed.">
+<meta property="og:title" content="SpeakUp — Tamil to English with Vismaya 🗣️">
+<meta property="og:description" content="தமிழில் பேசுங்கள், English கேளுங்கள்! Vismaya உங்களுக்கு English கற்றுத்தரும். Free & instant — no download needed.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/icon.svg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SpeakUp — Tamil to English with Vismaya">
+<meta name="twitter:description" content="Speak Tamil → hear English + Tamil explanation. Like Siri for learning English!">
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&family=Noto+Sans+Tamil:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1242,6 +1262,13 @@ Student's message: ${userText}`;
 
   // Preload voices
   speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+
+  // Register service worker for PWA / offline support
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
 </script>
 </body>
 </html>
