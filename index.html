@@ -948,6 +948,11 @@
   }
 
   function speakText(text, btn) {
+    speakSequence([{ text, lang: 'en-IN' }], btn);
+  }
+
+  // Speaks segments [{text, lang}] sequentially, switching voice per segment
+  function speakSequence(segments, btn) {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
       if (activeSpeakBtn) {
@@ -957,61 +962,87 @@
       if (activeSpeakBtn === btn) { activeSpeakBtn = null; return; }
     }
 
-    const clean = stripHtml(text);
-    if (!clean) return;
+    segments = segments.filter(s => s.text.trim());
+    if (!segments.length) return;
 
-    const utter = new SpeechSynthesisUtterance(clean);
-    utter.lang = 'en-IN';
-    utter.rate = parseFloat(document.getElementById('tts-speed').value);
-    utter.pitch = 1;
-
+    const rate  = parseFloat(document.getElementById('tts-speed').value);
     const voices = speechSynthesis.getVoices();
-    const voice = voices.find(v => v.lang === 'en-IN')
-               || voices.find(v => v.lang.startsWith('en') && /india/i.test(v.name))
-               || voices.find(v => v.lang.startsWith('en'));
-    if (voice) utter.voice = voice;
 
-    utter.onstart = () => {
-      setStatus('speaking', '🔊 Speaking English explanation...');
-      btn.classList.add('playing');
-      btn.textContent = '⏹️';
-      activeSpeakBtn = btn;
-      if (conversationMode) setConvoOrb('speaking', '🗣️ Vismaya is speaking...');
-    };
+    function pickVoice(lang) {
+      const prefix = lang.split('-')[0];
+      return voices.find(v => v.lang === lang)
+          || voices.find(v => v.lang.startsWith(prefix) && /india/i.test(v.name))
+          || voices.find(v => v.lang.startsWith(prefix))
+          || null;
+    }
 
-    utter.onend = () => {
-      setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
-      btn.classList.remove('playing');
-      btn.textContent = '🔊';
-      activeSpeakBtn = null;
-      if (conversationMode) {
-        // Auto-restart listening after speaking — the conversation loop
-        setConvoOrb('listening', '👂 Vismaya is listening...');
-        setTimeout(() => startListening(), 900);
+    btn.classList.add('playing');
+    btn.textContent = '⏹️';
+    activeSpeakBtn = btn;
+    if (conversationMode) setConvoOrb('speaking', '🗣️ Vismaya is speaking...');
+
+    function speakNext(i) {
+      if (i >= segments.length) {
+        setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+        btn.classList.remove('playing');
+        btn.textContent = '🔊';
+        activeSpeakBtn = null;
+        if (conversationMode) {
+          setConvoOrb('listening', '👂 Vismaya is listening...');
+          setTimeout(() => startListening(), 900);
+        }
+        return;
       }
-    };
 
-    utter.onerror = () => {
-      setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
-      btn.classList.remove('playing');
-      btn.textContent = '🔊';
-      activeSpeakBtn = null;
-      if (conversationMode) {
-        setConvoOrb('listening', '👂 Vismaya is listening...');
-        setTimeout(() => startListening(), 800);
-      }
-    };
+      const { text, lang } = segments[i];
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang  = lang;
+      utter.rate  = rate;
+      utter.pitch = 1;
+      const voice = pickVoice(lang);
+      if (voice) utter.voice = voice;
 
-    speechSynthesis.speak(utter);
+      utter.onstart = () => {
+        const isTamil = lang.startsWith('ta');
+        setStatus('speaking', isTamil ? '🔊 தமிழில் பேசுகிறேன்...' : '🔊 Speaking English...');
+      };
+      utter.onend   = () => speakNext(i + 1);
+      utter.onerror = () => {
+        setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+        btn.classList.remove('playing');
+        btn.textContent = '🔊';
+        activeSpeakBtn = null;
+        if (conversationMode) {
+          setConvoOrb('listening', '👂 Vismaya is listening...');
+          setTimeout(() => startListening(), 800);
+        }
+      };
+
+      speechSynthesis.speak(utter);
+    }
+
+    speakNext(0);
   }
 
   function speakBubble(btn) {
-    const bubble = btn.closest('.bubble');
+    const bubble  = btn.closest('.bubble');
+    const labels  = bubble.querySelectorAll('.section-label');
     const contents = bubble.querySelectorAll('.section-content');
-    const text = contents.length
-      ? Array.from(contents).map(el => el.textContent.trim()).join(' ')
-      : stripHtml(bubble.innerHTML);
-    speakText(text + ' Thanks to Vismaya.', btn);
+    const segments = [];
+
+    labels.forEach((label, i) => {
+      const isTamil = label.classList.contains('translation');
+      const text = contents[i] ? contents[i].textContent.trim() : '';
+      if (text) segments.push({ text, lang: isTamil ? 'ta-IN' : 'en-IN' });
+    });
+
+    if (!segments.length) {
+      const text = stripHtml(bubble.innerHTML).trim();
+      if (text) segments.push({ text, lang: 'en-IN' });
+    }
+
+    segments.push({ text: 'Thanks to Vismaya.', lang: 'en-IN' });
+    speakSequence(segments, btn);
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
