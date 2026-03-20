@@ -589,6 +589,102 @@
     line-height: 1.7;
   }
 
+  /* ── Siri-style Conversation Orb ─────────────────────────────── */
+  .convo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 0 6px;
+    gap: 10px;
+  }
+
+  .convo-orb-wrap {
+    position: relative;
+    width: 96px; height: 96px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .convo-orb {
+    width: 76px; height: 76px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, var(--tamil));
+    border: none;
+    cursor: pointer;
+    font-size: 2rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 28px rgba(192,132,252,0.45);
+    transition: background 0.4s, box-shadow 0.3s;
+    position: relative; z-index: 1;
+  }
+
+  .convo-orb:hover { transform: scale(1.06); }
+
+  .convo-orb.listening {
+    background: linear-gradient(135deg, var(--mic-active), #b91c1c);
+    box-shadow: 0 4px 28px rgba(224,92,92,0.55);
+    animation: orb-pulse 1.1s ease-in-out infinite;
+  }
+
+  .convo-orb.speaking {
+    background: linear-gradient(135deg, var(--teal), #0e7490);
+    box-shadow: 0 4px 28px rgba(78,205,196,0.55);
+    animation: orb-pulse 0.85s ease-in-out infinite;
+  }
+
+  @keyframes orb-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.1); }
+  }
+
+  .orb-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    pointer-events: none;
+  }
+
+  .orb-ring.listening {
+    border-color: rgba(224,92,92,0.5);
+    animation: ring-expand 1.1s ease-out infinite;
+  }
+
+  .orb-ring.speaking {
+    border-color: rgba(78,205,196,0.5);
+    animation: ring-expand 0.85s ease-out infinite;
+  }
+
+  @keyframes ring-expand {
+    0%   { transform: scale(1);   opacity: 0.9; }
+    100% { transform: scale(1.8); opacity: 0;   }
+  }
+
+  .convo-label {
+    font-size: 0.84rem;
+    color: var(--muted);
+    text-align: center;
+    font-family: 'Noto Sans Tamil', 'DM Sans', sans-serif;
+    transition: color 0.3s;
+    min-height: 22px;
+  }
+
+  .convo-label.active { color: var(--text); font-weight: 500; }
+
+  .convo-hint {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .or-divider {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.7rem; color: var(--muted);
+    margin: 6px 0 10px;
+  }
+
+  .or-divider::before, .or-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
   @media (max-width: 600px) {
     h1 { font-size: 1.5rem; }
     #chat-window { height: 320px; }
@@ -651,14 +747,26 @@
         <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen">🔊</button>
         <div class="section-label answer">👋 வணக்கம்! Hello!</div>
         <div class="section-content">
-          I am your <span class="highlight-word">SpeakUp</span> English tutor!
-          Tap the 🎤 mic button and speak your doubt in Tamil.
-          I will explain it in English and read it out loud for you!
-          <div class="example-sentence">Try saying: "Articles எப்படி use பண்றது?"</div>
+          I am <span class="highlight-word">Vismaya</span>, your English conversation partner!
+          Tap the 🎙️ orb above to start talking — I will listen, answer, and keep chatting with you!
+          You can speak in Tamil, and I will help you learn English through real conversation. 😊
+          <div class="example-sentence">What is your name? Try saying: "My name is ___"</div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Siri-style Conversation Orb -->
+  <div class="convo-section">
+    <div class="convo-orb-wrap">
+      <button class="convo-orb" id="convo-orb" onclick="toggleConversationMode()" title="Talk to Vismaya">🎙️</button>
+      <div class="orb-ring" id="orb-ring"></div>
+    </div>
+    <div class="convo-label" id="convo-label">Tap to talk to Vismaya</div>
+    <div class="convo-hint">தொடர்ந்து பேசுங்கள் — Vismaya listens after every reply 🔄</div>
+  </div>
+
+  <div class="or-divider">or type below</div>
 
   <!-- Input -->
   <div class="input-panel">
@@ -713,6 +821,40 @@
   let recognition = null;
   let isRecording = false;
   let activeSpeakBtn = null;
+  let conversationMode = false;
+
+  // ── Conversation Orb helpers ──────────────────────────────────────────────
+  function setConvoOrb(state, labelText) {
+    const orb   = document.getElementById('convo-orb');
+    const ring  = document.getElementById('orb-ring');
+    const label = document.getElementById('convo-label');
+    orb.className  = 'convo-orb'  + (state ? ' ' + state : '');
+    ring.className = 'orb-ring'   + (state ? ' ' + state : '');
+    if (labelText !== undefined) {
+      label.textContent = labelText;
+      label.className = 'convo-label' + (state ? ' active' : '');
+    }
+  }
+
+  function toggleConversationMode() {
+    conversationMode = !conversationMode;
+    if (conversationMode) {
+      if (speechSynthesis.speaking) speechSynthesis.cancel();
+      setConvoOrb('listening', '👂 Vismaya is listening...');
+      startListening();
+    } else {
+      if (isRecording && recognition) recognition.stop();
+      if (speechSynthesis.speaking) speechSynthesis.cancel();
+      setConvoOrb('', 'Tap to talk to Vismaya');
+    }
+  }
+
+  function startListening() {
+    if (!recognition || isRecording) return;
+    document.getElementById('user-input').value = '';
+    document.getElementById('voice-preview').textContent = '';
+    recognition.start();
+  }
 
   // ── Speech Recognition (Tamil Input) ──────────────────────────────────────
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -735,6 +877,7 @@
       document.getElementById('mic-btn').classList.add('recording');
       document.getElementById('waveform').classList.add('active');
       document.getElementById('voice-preview').textContent = '';
+      if (conversationMode) setConvoOrb('listening', '👂 Vismaya is listening...');
     };
 
     recognition.onresult = (e) => {
@@ -756,7 +899,12 @@
       const text = document.getElementById('user-input').value.trim();
       if (text) {
         document.getElementById('voice-preview').textContent = '';
+        if (conversationMode) setConvoOrb('', '⏳ Vismaya is thinking...');
         setTimeout(() => sendMessage(), 350);
+      } else if (conversationMode) {
+        // No speech detected — keep listening
+        setConvoOrb('listening', '👂 Vismaya is listening...');
+        setTimeout(() => startListening(), 600);
       }
     };
 
@@ -765,11 +913,19 @@
       document.getElementById('mic-btn').classList.remove('recording');
       document.getElementById('waveform').classList.remove('active');
       const msgs = {
-        'no-speech': 'No speech detected. Try again.',
-        'not-allowed': 'Mic permission denied. Please allow microphone access.',
-        'network': 'Network error. Check your connection.'
+        'no-speech':    'No speech detected. Try again.',
+        'not-allowed':  'Mic permission denied. Please allow microphone access.',
+        'network':      'Network error. Check your connection.'
       };
       setStatus('idle', msgs[e.error] || 'Error — please try again.');
+      if (conversationMode && e.error === 'no-speech') {
+        // Stay in conversation mode, retry listening
+        setConvoOrb('listening', '👂 Vismaya is listening...');
+        setTimeout(() => startListening(), 800);
+      } else if (conversationMode) {
+        setConvoOrb('', 'Tap to talk to Vismaya');
+        conversationMode = false;
+      }
     };
   }
 
@@ -820,13 +976,30 @@
       btn.classList.add('playing');
       btn.textContent = '⏹️';
       activeSpeakBtn = btn;
+      if (conversationMode) setConvoOrb('speaking', '🗣️ Vismaya is speaking...');
     };
 
-    utter.onend = utter.onerror = () => {
+    utter.onend = () => {
       setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
       btn.classList.remove('playing');
       btn.textContent = '🔊';
       activeSpeakBtn = null;
+      if (conversationMode) {
+        // Auto-restart listening after speaking — the conversation loop
+        setConvoOrb('listening', '👂 Vismaya is listening...');
+        setTimeout(() => startListening(), 900);
+      }
+    };
+
+    utter.onerror = () => {
+      setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
+      btn.classList.remove('playing');
+      btn.textContent = '🔊';
+      activeSpeakBtn = null;
+      if (conversationMode) {
+        setConvoOrb('listening', '👂 Vismaya is listening...');
+        setTimeout(() => startListening(), 800);
+      }
     };
 
     speechSynthesis.speak(utter);
@@ -931,33 +1104,38 @@
       general:       'Cover grammar, usage, and examples clearly.',
     };
 
-    return `You are SpeakUp, a warm and encouraging spoken English tutor for Tamil-speaking beginners in India.
+    return `You are Vismaya, a friendly and encouraging English conversation partner for Tamil-speaking beginners in India.
+You are like a fun friend who helps them practice English — not just a tutor.
 
-The student spoke/wrote their English doubt in Tamil. Your job:
-1. Understand what English concept they are asking about.
-2. Respond ONLY in English — simple, spoken-style English for beginners.
-3. Keep responses concise (this is read aloud by text-to-speech).
-4. Use this exact HTML structure:
+The student spoke in Tamil. Your job:
+1. Understand what they said or asked.
+2. Respond ONLY in English — simple, short, spoken-style sentences (this is read aloud).
+3. Always ENCOURAGE them warmly for speaking — even if they spoke in Tamil, praise the effort.
+4. After answering, give them a simple English sentence to try saying aloud (practice phrase).
+5. End every reply with a natural follow-up question to keep the conversation going.
+6. Use this exact HTML structure:
 
-<div class="section-label translation">🔍 What you asked</div>
-<div class="section-content">[1-2 sentences restating their question simply]</div>
+<div class="section-label translation">🔍 What you said</div>
+<div class="section-content">[Restate what they said/asked. Add: "Great job speaking up! 👏"]</div>
 
-<div class="section-label answer">✅ The Answer</div>
-<div class="section-content">[Clear simple explanation. ${topicGuide[currentTopic]}]</div>
+<div class="section-label answer">✅ Vismaya says</div>
+<div class="section-content">[Your answer or response. ${topicGuide[currentTopic]} Keep it friendly and short.]</div>
 
-<div class="section-label usage">📖 Examples</div>
+<div class="section-label usage">🗣️ Try saying this</div>
 <div class="section-content">
-2 short example sentences. Wrap each in: <div class="example-sentence">sentence</div>
+Give 1-2 simple English sentences they can say right now. Wrap each in: <div class="example-sentence">sentence</div>
 Highlight key words: <span class="highlight-word">word</span>
+End with: "Can you try saying that? 😊"
 </div>
 
-<div class="section-label tip">💡 Remember This</div>
-<div class="section-content">[One simple tip. Be warm and encouraging!]</div>
+<div class="section-label tip">💬 Keep talking!</div>
+<div class="section-content">[Ask a warm, simple follow-up question to continue the conversation. Make it easy for a beginner to answer.]</div>
 
-Rules: Only English. Short sentences. Kind tone. Topic: ${currentTopic}
-IMPORTANT: Output ONLY the 4 HTML sections above. No extra text, greetings, or closing remarks outside those sections.
+Rules: Only English in responses. Very short sentences. Warm and encouraging tone. Topic: ${currentTopic}
+Your name is Vismaya. If asked your name say "My name is Vismaya! What is your name?" and remember their name.
+IMPORTANT: Output ONLY the 4 HTML sections above. No extra text outside those sections.
 
-Student's question: ${userText}`;
+Student's message: ${userText}`;
   }
 
   // ── Session ID (anonymous, persists per browser) ──────────────────────────
