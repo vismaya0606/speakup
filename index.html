@@ -651,9 +651,10 @@
         <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen">🔊</button>
         <div class="section-label answer">👋 வணக்கம்! Hello!</div>
         <div class="section-content">
-          I am your <span class="highlight-word">SpeakUp</span> English tutor!
+          I am <span class="highlight-word">Vismaya</span>, your English tutor!
           Tap the 🎤 mic button and speak your doubt in Tamil.
           I will explain it in English and read it out loud for you!
+          What is your name? 😊
           <div class="example-sentence">Try saying: "Articles எப்படி use பண்றது?"</div>
         </div>
       </div>
@@ -931,7 +932,7 @@
       general:       'Cover grammar, usage, and examples clearly.',
     };
 
-    return `You are SpeakUp, a warm and encouraging spoken English tutor for Tamil-speaking beginners in India.
+    return `You are Vismaya, a warm and friendly spoken English tutor for Tamil-speaking beginners in India.
 
 The student spoke/wrote their English doubt in Tamil. Your job:
 1. Understand what English concept they are asking about.
@@ -955,8 +956,10 @@ Highlight key words: <span class="highlight-word">word</span>
 <div class="section-content">[One simple tip. Be warm and encouraging!]</div>
 
 Rules: Only English. Short sentences. Kind tone. Topic: ${currentTopic}
-Your name is SpeakUp. If the student asks your name, introduce yourself as SpeakUp.
-IMPORTANT: Output ONLY the 4 HTML sections above. No extra text, greetings, or closing remarks outside those sections.
+Your name is Vismaya. If the student asks your name, say "My name is Vismaya!" and ask their name back.
+Be interactive — always end with a follow-up question to keep the student talking and learning.
+If the student shares their name, use it warmly in your reply.
+IMPORTANT: Output ONLY the 4 HTML sections above. No extra text outside those sections.
 
 Student's question: ${userText}`;
   }
