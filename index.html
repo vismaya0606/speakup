@@ -928,6 +928,47 @@
     border-radius: 10px; color: var(--muted); cursor: pointer; font-size: 0.85rem;
   }
 
+  /* Brain button (next to missions) */
+  .brain-btn {
+    background: linear-gradient(135deg, #6c47ff, #c084fc);
+    border: none; color: #fff; font-size: 0.7rem; font-weight: 800;
+    padding: 4px 10px; border-radius: 99px; cursor: pointer;
+    flex-shrink: 0; white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(108,71,255,0.4);
+    transition: transform 0.15s;
+  }
+  .brain-btn:hover { transform: scale(1.06); }
+
+  /* Agent proactive tip bubble */
+  .agent-tip .bubble {
+    background: linear-gradient(135deg, rgba(108,71,255,0.12), rgba(192,132,252,0.08));
+    border: 1px solid rgba(192,132,252,0.35);
+  }
+  .agent-tip .avatar { background: linear-gradient(135deg, #6c47ff, #c084fc); }
+
+  /* Brain panel */
+  .brain-sheet { background: var(--card); border-radius: 24px 24px 0 0; border: 1px solid var(--border); border-bottom: none; width: 100%; max-width: 520px; padding: 22px 20px 32px; animation: sheet-up 0.35s cubic-bezier(.34,1.56,.64,1); }
+  .brain-title { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .brain-section { margin-bottom: 16px; }
+  .brain-section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .brain-word-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .brain-word-name { font-size: 0.8rem; font-weight: 500; min-width: 90px; }
+  .brain-word-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .brain-word-bar { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #6c47ff, #c084fc); transition: width 0.5s; }
+  .brain-word-count { font-size: 0.7rem; color: var(--muted); min-width: 24px; text-align: right; }
+  .brain-topic-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .brain-topic-name { font-size: 0.78rem; font-weight: 500; min-width: 80px; text-transform: capitalize; }
+  .brain-topic-bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .brain-topic-bar { height: 100%; background: linear-gradient(90deg, #ff6b35, #ffd700); border-radius: 99px; }
+  .brain-recommend {
+    background: linear-gradient(135deg, rgba(108,71,255,0.12), rgba(192,132,252,0.06));
+    border: 1px solid rgba(192,132,252,0.3);
+    border-radius: 12px; padding: 12px 14px;
+    font-size: 0.82rem; line-height: 1.5;
+  }
+  .brain-recommend strong { color: var(--accent); }
+  .brain-empty { color: var(--muted); font-size: 0.82rem; text-align: center; padding: 20px 0; }
+
   /* Airdrop */
   .airdrop-box {
     position: fixed; left: 50%; transform: translateX(-50%);
@@ -994,6 +1035,7 @@
       <span class="xp-count" id="xp-count">0 XP</span>
       <span class="streak-badge" id="streak-badge">🔥 0</span>
       <button class="missions-btn" onclick="toggleMissionsPanel()">🎯 Missions</button>
+      <button class="brain-btn"    onclick="toggleBrainPanel()">🧠 Brain</button>
     </div>
   </div>
 
@@ -1319,6 +1361,158 @@
       </div>
       ${html}
       <button class="close-sheet-btn" onclick="document.getElementById('missions-overlay').remove()">Close</button>
+    </div>`;
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
+  // ── Learning Brain (Agentic Memory) ──────────────────────────────
+  let brain = JSON.parse(localStorage.getItem('speakup_brain') || 'null') || {
+    wordFreq: {}, topicFreq: {}, totalMsgs: 0,
+  };
+  function saveBrain() { localStorage.setItem('speakup_brain', JSON.stringify(brain)); }
+
+  // Words to ignore when extracting vocabulary
+  const STOPWORDS = new Set([
+    'the','a','an','is','are','was','were','be','been','being','have','has','had',
+    'do','does','did','will','would','could','should','may','might','shall','can',
+    'to','of','in','for','on','with','at','by','from','as','into','about','and',
+    'or','but','if','because','so','that','this','these','those','what','how',
+    'why','when','where','who','which','not','no','yes','okay','please','just',
+    'i','you','he','she','it','we','they','me','him','her','us','them',
+    'my','your','his','its','our','their','mine','yours','hers','ours',
+    'use','used','using','say','said','says','tell','want','need','like','know',
+    'get','got','make','made','one','two','three','also','then','than',
+  ]);
+
+  function extractWords(text) {
+    const words = text.toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 3 && !STOPWORDS.has(w) && /^[a-z]/.test(w));
+    const uniq = [...new Set(words)];
+    // Capture 2-word grammar phrases too
+    for (let i = 0; i < words.length - 1; i++) {
+      if (!STOPWORDS.has(words[i]) && !STOPWORDS.has(words[i+1]))
+        uniq.push(words[i] + ' ' + words[i+1]);
+    }
+    return uniq.slice(0, 12);
+  }
+
+  function learnFromMessage(text) {
+    extractWords(text).forEach(w => {
+      brain.wordFreq[w] = (brain.wordFreq[w] || 0) + 1;
+    });
+    brain.topicFreq[currentTopic] = (brain.topicFreq[currentTopic] || 0) + 1;
+    brain.totalMsgs++;
+    saveBrain();
+  }
+
+  function getTopWords(n = 5) {
+    return Object.entries(brain.wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n);
+  }
+
+  // Returns a context string injected into every AI prompt
+  function buildMemoryContext() {
+    const top = getTopWords(5).filter(([,c]) => c >= 2);
+    const topTopic = Object.entries(brain.topicFreq).sort((a,b) => b[1]-a[1])[0];
+    if (!top.length && !topTopic) return '';
+    const lines = [];
+    if (top.length) {
+      lines.push('Student repeatedly asks about: ' +
+        top.map(([w,c]) => `"${w}" (${c}x)`).join(', ') + '.');
+      lines.push('If they ask about the same concept again, give a fresh angle or new example — avoid repeating the same explanation.');
+    }
+    if (topTopic) lines.push(`Their favourite topic is: ${topTopic[0]}.`);
+    return '\n\nStudent Learning Profile (personalise your response):\n' + lines.join('\n');
+  }
+
+  // Proactive agent tip: every 8 messages, if any word asked 3+ times, Vismaya nudges
+  function checkAgentSuggestion() {
+    if (brain.totalMsgs % 8 !== 0) return;
+    const struggling = getTopWords(1).filter(([,c]) => c >= 3);
+    if (!struggling.length) return;
+    const [word, count] = struggling[0];
+    setTimeout(() => showAgentTip(word, count), 1500);
+  }
+
+  function showAgentTip(word, count) {
+    const cw = document.getElementById('chat-window');
+    const div = document.createElement('div');
+    div.className = 'message ai agent-tip';
+    div.innerHTML = `
+      <div class="avatar ai" style="background:linear-gradient(135deg,#6c47ff,#c084fc)">🧠</div>
+      <div class="bubble">
+        <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen">🔊</button>
+        <div class="section-label answer">🎯 Vismaya noticed!</div>
+        <div class="section-content">
+          Da, nee <strong>"${word}"</strong> pathi <strong>${count} times</strong> ketta irukke!
+          Shall we practice it properly now? Try using <em>"${word}"</em> in your own sentence — naan correct panren! 💪
+        </div>
+      </div>`;
+    cw.appendChild(div);
+    scrollToBottom();
+    const btn = div.querySelector('.speak-bubble-btn');
+    setTimeout(() => speakBubble(btn), 600);
+  }
+
+  // Brain panel UI
+  function toggleBrainPanel() {
+    const existing = document.getElementById('brain-overlay');
+    if (existing) { existing.remove(); return; }
+
+    const topWords  = getTopWords(7);
+    const topTopics = Object.entries(brain.topicFreq).sort((a,b) => b[1]-a[1]).slice(0, 5);
+    const maxWC     = topWords[0]?.[1]  || 1;
+    const maxTC     = topTopics[0]?.[1] || 1;
+    const struggling = topWords.filter(([,c]) => c >= 3);
+
+    const wordsHtml = topWords.length
+      ? topWords.map(([w, c]) => `
+          <div class="brain-word-row">
+            <span class="brain-word-name">${w}</span>
+            <div class="brain-word-bar-wrap"><div class="brain-word-bar" style="width:${Math.round((c/maxWC)*100)}%"></div></div>
+            <span class="brain-word-count">${c}x</span>
+          </div>`).join('')
+      : '<div class="brain-empty">Chat more — I\'ll start learning! 😊</div>';
+
+    const topicsHtml = topTopics.length
+      ? topTopics.map(([t, c]) => `
+          <div class="brain-topic-row">
+            <span class="brain-topic-name">${t}</span>
+            <div class="brain-topic-bar-wrap"><div class="brain-topic-bar" style="width:${Math.round((c/maxTC)*100)}%"></div></div>
+            <span class="brain-word-count">${c}</span>
+          </div>`).join('')
+      : '<div class="brain-empty">No topics yet.</div>';
+
+    const recommendHtml = struggling.length
+      ? `<div class="brain-recommend">
+          🎯 <strong>Agent suggests:</strong> Practice <strong>"${struggling[0][0]}"</strong> today — you've asked about it ${struggling[0][1]} times. Type a sentence using it and I'll correct it! 💡
+         </div>`
+      : `<div class="brain-recommend">🌱 Keep chatting — I'll personalise tips as I learn your weak spots!</div>`;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'missions-overlay';
+    overlay.id = 'brain-overlay';
+    overlay.innerHTML = `<div class="brain-sheet">
+      <div class="brain-title">🧠 Your Learning Brain
+        <span style="font-size:0.7rem;color:var(--muted);font-weight:400;margin-left:auto">${brain.totalMsgs} messages total</span>
+      </div>
+      <div class="brain-section">
+        <div class="brain-section-label">📚 Words you keep asking about</div>
+        ${wordsHtml}
+      </div>
+      <div class="brain-section">
+        <div class="brain-section-label">🎯 Topics practiced</div>
+        ${topicsHtml}
+      </div>
+      <div class="brain-section">
+        <div class="brain-section-label">💡 Agent recommendation</div>
+        ${recommendHtml}
+      </div>
+      <button class="close-sheet-btn" onclick="document.getElementById('brain-overlay').remove()">Close</button>
     </div>`;
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
     document.body.appendChild(overlay);
@@ -1706,7 +1900,7 @@ Output ONLY this HTML (nothing else):
 <div class="section-label usage">🗣️ Try saying</div>
 <div class="section-content"><div class="example-sentence"><span class="highlight-word">key word</span> in a short sentence</div>Then one short casual follow-up question to keep talking.</div>
 
-Student's message: ${userText}`;
+Student's message: ${userText}${buildMemoryContext()}`;
   }
 
   // ── Session ID (anonymous, persists per browser) ──────────────────────────
@@ -1740,6 +1934,8 @@ Student's message: ${userText}`;
     document.getElementById('voice-preview').textContent = '';
 
     appendUserMessage(text);
+    learnFromMessage(text);      // 🧠 agent learns from this message
+    checkAgentSuggestion();      // proactive tip if struggling with something
     showTyping();
     setStatus('idle', '⏳ Getting answer...');
 
