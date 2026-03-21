@@ -1470,7 +1470,7 @@
     }
   }
 
-  // ── Text-to-Speech (English Output) ──────────────────────────────────────
+  // ── Text-to-Speech ────────────────────────────────────────────────────────
   function stripHtml(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
@@ -1478,10 +1478,37 @@
   }
 
   function speakText(text, btn) {
-    speakSequence([{ text, lang: 'en-IN' }], btn);
+    speakSequence([{ text, lang: 'en-IN', female: true }], btn);
   }
 
-  // Speaks segments [{text, lang}] sequentially, switching voice per segment
+  // Female Indian-English voice names known across Chrome/Edge/Safari
+  const FEMALE_VOICE_HINTS = ['Raveena','Neerja','Heera','Priya','Aditi','Zira','Riya','Lekha','Veena','Samantha'];
+
+  // Pick the best voice for a lang; wantFemale prefers female Indian voices
+  function pickVoice(lang, wantFemale) {
+    const voices   = speechSynthesis.getVoices();
+    const pfx      = lang.split('-')[0];
+    const byLang   = v => v.lang === lang;
+    const byPrefix = v => v.lang.startsWith(pfx);
+    const isIndia  = v => /india|\bin\b/i.test(v.name);
+    const isFemale = v => FEMALE_VOICE_HINTS.some(n => v.name.includes(n)) || /female/i.test(v.name);
+
+    if (wantFemale) {
+      return voices.find(v => byLang(v)   && isIndia(v) && isFemale(v))
+          || voices.find(v => byLang(v)   && isFemale(v))
+          || voices.find(v => byPrefix(v) && isIndia(v) && isFemale(v))
+          || voices.find(v => byLang(v)   && isIndia(v))
+          || voices.find(v => byLang(v))
+          || null;
+    }
+    return voices.find(v => byLang(v)   && isIndia(v))
+        || voices.find(v => byLang(v))
+        || voices.find(v => byPrefix(v) && isIndia(v))
+        || voices.find(v => byPrefix(v))
+        || null;
+  }
+
+  // Segments: { text, lang, female?, pitch?, rateScale? }
   function speakSequence(segments, btn) {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
@@ -1495,16 +1522,7 @@
     segments = segments.filter(s => s.text.trim());
     if (!segments.length) return;
 
-    const rate  = parseFloat(document.getElementById('tts-speed').value);
-    const voices = speechSynthesis.getVoices();
-
-    function pickVoice(lang) {
-      const prefix = lang.split('-')[0];
-      return voices.find(v => v.lang === lang)
-          || voices.find(v => v.lang.startsWith(prefix) && /india/i.test(v.name))
-          || voices.find(v => v.lang.startsWith(prefix))
-          || null;
-    }
+    const baseRate = parseFloat(document.getElementById('tts-speed').value);
 
     btn.classList.add('playing');
     btn.textContent = '⏹️';
@@ -1524,18 +1542,15 @@
         return;
       }
 
-      const { text, lang } = segments[i];
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang  = lang;
-      utter.rate  = rate;
-      utter.pitch = 1;
-      const voice = pickVoice(lang);
+      const seg   = segments[i];
+      const utter = new SpeechSynthesisUtterance(seg.text);
+      utter.lang  = seg.lang;
+      utter.rate  = baseRate * (seg.rateScale || 1);
+      utter.pitch = seg.pitch || 1;
+      const voice = pickVoice(seg.lang, !!seg.female);
       if (voice) utter.voice = voice;
 
-      utter.onstart = () => {
-        const isTamil = lang.startsWith('ta');
-        setStatus('speaking', isTamil ? '🔊 தமிழில் பேசுகிறேன்...' : '🔊 Speaking English...');
-      };
+      utter.onstart = () => setStatus('speaking', '🔊 Speaking...');
       utter.onend   = () => speakNext(i + 1);
       utter.onerror = () => {
         setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
@@ -1555,23 +1570,28 @@
   }
 
   function speakBubble(btn) {
-    const bubble  = btn.closest('.bubble');
-    const labels  = bubble.querySelectorAll('.section-label');
+    const bubble   = btn.closest('.bubble');
+    const labels   = bubble.querySelectorAll('.section-label');
     const contents = bubble.querySelectorAll('.section-content');
     const segments = [];
 
     labels.forEach((label, i) => {
-      const isTamil = label.classList.contains('translation');
       const text = contents[i] ? contents[i].textContent.trim() : '';
-      if (text) segments.push({ text, lang: isTamil ? 'ta-IN' : 'en-IN' });
+      if (!text) return;
+      if (label.classList.contains('translation')) {
+        // Tanglish section: always en-IN (Roman script), female Indian voice,
+        // slightly slower + warmer pitch — sounds like a relaxed Chennai friend
+        segments.push({ text, lang: 'en-IN', female: true, pitch: 0.92, rateScale: 0.88 });
+      } else {
+        segments.push({ text, lang: 'en-IN', female: true });
+      }
     });
 
     if (!segments.length) {
       const text = stripHtml(bubble.innerHTML).trim();
-      if (text) segments.push({ text, lang: 'en-IN' });
+      if (text) segments.push({ text, lang: 'en-IN', female: true });
     }
 
-    segments.push({ text: 'Thanks to Vismaya.', lang: 'en-IN' });
     speakSequence(segments, btn);
   }
 
