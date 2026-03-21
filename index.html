@@ -828,6 +828,135 @@
 
   .badge-toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* ── Free Fire Features ────────────────────────────────────────── */
+
+  /* BOOYAH! screen */
+  .booyah-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: radial-gradient(ellipse at center, #1a0800 0%, #000 75%);
+    display: flex; align-items: center; justify-content: center;
+    animation: booyah-bg-in 0.35s ease;
+  }
+  .booyah-overlay::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, rgba(255,100,0,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .booyah-card { text-align: center; animation: booyah-pop 0.5s cubic-bezier(.34,1.56,.64,1) 0.1s both; }
+  .booyah-rank-icon { font-size: 3.5rem; margin-bottom: 6px; filter: drop-shadow(0 0 20px rgba(255,215,0,0.8)); }
+  .booyah-word {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 16vw, 6.5rem);
+    font-weight: 900; line-height: 1;
+    color: #ffd700;
+    text-shadow: 0 0 40px rgba(255,215,0,0.9), 0 0 80px rgba(255,120,0,0.5), 0 5px 0 #a06000;
+    letter-spacing: 0.08em;
+    animation: booyah-shake 0.55s ease 0.6s both;
+  }
+  .booyah-rank { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 4px; text-transform: uppercase; margin: 8px 0 4px; }
+  .booyah-sub  { color: rgba(255,215,0,0.7); font-size: 0.85rem; }
+  @keyframes booyah-bg-in  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes booyah-pop    { from { transform: scale(0.2) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+  @keyframes booyah-shake  {
+    0%,100% { transform: scale(1) translateX(0); }
+    20%     { transform: scale(1.08) translateX(-6px); }
+    50%     { transform: scale(1.06) translateX(6px); }
+    75%     { transform: scale(1.03) translateX(-3px); }
+  }
+
+  /* Kill-feed (right side, like FF) */
+  .killfeed-wrap {
+    position: fixed; right: 10px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 5px;
+    z-index: 500; pointer-events: none;
+  }
+  .killfeed-item {
+    background: rgba(0,0,0,0.82);
+    border-left: 3px solid var(--tamil);
+    color: #fff; font-size: 0.72rem; font-weight: 500;
+    padding: 5px 10px; border-radius: 0 8px 8px 0;
+    animation: kf-in 0.3s ease;
+    white-space: nowrap;
+  }
+  .killfeed-item.out { animation: kf-out 0.4s ease forwards; }
+  @keyframes kf-in  { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes kf-out { to   { opacity: 0; transform: translateX(50px); } }
+
+  /* Missions button */
+  .missions-btn {
+    background: linear-gradient(135deg, #ff6b35, #f5a623);
+    border: none; color: #000; font-size: 0.7rem; font-weight: 800;
+    padding: 4px 10px; border-radius: 99px; cursor: pointer;
+    flex-shrink: 0; white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(255,107,53,0.45);
+    transition: transform 0.15s;
+  }
+  .missions-btn:hover { transform: scale(1.06); }
+
+  /* Missions panel (slide up) */
+  .missions-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    display: flex; align-items: flex-end; justify-content: center;
+    background: rgba(0,0,0,0.6);
+  }
+  .missions-sheet {
+    background: var(--card); border-radius: 24px 24px 0 0;
+    border: 1px solid var(--border); border-bottom: none;
+    width: 100%; max-width: 520px; padding: 22px 20px 32px;
+    animation: sheet-up 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .missions-title {
+    font-size: 1rem; font-weight: 700; color: var(--accent);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .mission-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+  }
+  .mission-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+  .mission-label { font-size: 0.84rem; font-weight: 500; }
+  .mission-xp { font-size: 0.74rem; color: var(--accent); font-weight: 700; }
+  .mission-done-label { font-size: 0.74rem; color: var(--teal); font-weight: 700; }
+  .mpbar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .mpbar-fill { height: 100%; background: linear-gradient(90deg, #ff6b35, #ffd700); border-radius: 99px; transition: width 0.5s; }
+  .mission-count { font-size: 0.68rem; color: var(--muted); margin-top: 4px; }
+  .close-sheet-btn {
+    width: 100%; margin-top: 6px; padding: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--muted); cursor: pointer; font-size: 0.85rem;
+  }
+
+  /* Airdrop */
+  .airdrop-box {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    font-size: 2.8rem; z-index: 700; pointer-events: none;
+    animation: airdrop-fall 1.4s cubic-bezier(.23,1,.32,1) forwards;
+  }
+  .airdrop-label {
+    position: fixed; top: 44%; left: 50%; transform: translate(-50%,-50%);
+    background: linear-gradient(135deg, #ff6b35, #ffd700);
+    color: #000; font-weight: 900; font-size: 1rem;
+    padding: 8px 22px; border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(255,107,53,0.6);
+    z-index: 701; pointer-events: none;
+    animation: airdrop-label-anim 2.4s ease forwards;
+  }
+  @keyframes airdrop-fall {
+    0%   { top: -90px; }
+    65%  { top: 38%; }
+    80%  { top: 34%; }
+    90%  { top: 37%; }
+    100% { top: 37%; opacity: 0; }
+  }
+  @keyframes airdrop-label-anim {
+    0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
+    15%  { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+    70%  { opacity: 1; transform: translate(-50%,-80px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%,-120px) scale(0.8); }
+  }
+
   @media (max-width: 600px) {
     h1 { font-size: 1.5rem; }
     #chat-window { height: 320px; }
@@ -852,11 +981,11 @@
     </div>
   </header>
 
-  <!-- Game Bar -->
+  <!-- Game Bar (Free Fire style) -->
   <div class="game-bar" id="game-bar">
     <div class="game-level">
-      <span class="level-icon" id="level-icon">🌱</span>
-      <span class="level-name" id="level-name">Beginner</span>
+      <span class="level-icon" id="level-icon">🥉</span>
+      <span class="level-name" id="level-name">Bronze III</span>
     </div>
     <div class="xp-bar-wrap">
       <div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div>
@@ -864,6 +993,7 @@
     <div class="game-right">
       <span class="xp-count" id="xp-count">0 XP</span>
       <span class="streak-badge" id="streak-badge">🔥 0</span>
+      <button class="missions-btn" onclick="toggleMissionsPanel()">🎯 Missions</button>
     </div>
   </div>
 
@@ -983,22 +1113,37 @@
   let _lastWasVoice = false;
 
   // ── Gamification ──────────────────────────────────────────────────────────
+  // Free Fire–style rank ladder
   const LEVELS = [
-    { level: 1, name: 'Beginner',  icon: '🌱', xp: 0    },
-    { level: 2, name: 'Talker',    icon: '🗣️',  xp: 100  },
-    { level: 3, name: 'Learner',   icon: '📖',  xp: 250  },
-    { level: 4, name: 'Speaker',   icon: '🎤',  xp: 500  },
-    { level: 5, name: 'Star',      icon: '⭐',  xp: 1000 },
-    { level: 6, name: 'Champion',  icon: '🏆',  xp: 2000 },
+    { level: 1,  name: 'Bronze III',   icon: '🥉', xp: 0    },
+    { level: 2,  name: 'Bronze II',    icon: '🥉', xp: 80   },
+    { level: 3,  name: 'Bronze I',     icon: '🥉', xp: 180  },
+    { level: 4,  name: 'Silver III',   icon: '🥈', xp: 320  },
+    { level: 5,  name: 'Silver II',    icon: '🥈', xp: 500  },
+    { level: 6,  name: 'Silver I',     icon: '🥈', xp: 720  },
+    { level: 7,  name: 'Gold III',     icon: '🥇', xp: 1000 },
+    { level: 8,  name: 'Gold II',      icon: '🥇', xp: 1400 },
+    { level: 9,  name: 'Gold I',       icon: '🥇', xp: 1900 },
+    { level: 10, name: 'Diamond',      icon: '💎', xp: 2500 },
+    { level: 11, name: 'Heroic',       icon: '🦁', xp: 3500 },
+    { level: 12, name: 'Grandmaster',  icon: '👑', xp: 5000 },
   ];
 
   const BADGES = [
-    { id: 'first_message', icon: '💬', name: 'First Chat!',  check: g => g.totalMessages >= 1  },
-    { id: 'first_voice',   icon: '🎙️', name: 'Voice Star!',  check: g => g.voiceMessages >= 1  },
-    { id: 'chatterbox',    icon: '🗨️', name: 'Chatterbox!',  check: g => g.totalMessages >= 10 },
-    { id: 'on_fire',       icon: '🔥', name: 'On Fire!',     check: g => g.streak >= 3         },
-    { id: 'level_up',      icon: '📈', name: 'Level Up!',    check: g => g.level >= 2          },
-    { id: 'scholar',       icon: '🎓', name: 'Scholar!',     check: g => g.level >= 4          },
+    { id: 'first_kill',  icon: '🎯', name: 'First Kill!',    check: g => g.totalMessages >= 1  },
+    { id: 'voice_star',  icon: '🎙️', name: 'Voice Star!',    check: g => g.voiceMessages >= 1  },
+    { id: 'survivor',    icon: '🔥', name: 'Survivor!',      check: g => g.streak >= 3         },
+    { id: 'headshot',    icon: '💥', name: 'Headshot!',      check: g => g.totalMessages >= 10 },
+    { id: 'ranked_up',   icon: '📈', name: 'Ranked Up!',     check: g => g.level >= 4          },
+    { id: 'squad_ace',   icon: '🏆', name: 'Squad Ace!',     check: g => g.level >= 7          },
+    { id: 'booyah_king', icon: '👑', name: 'BOOYAH King!',   check: g => g.level >= 10         },
+  ];
+
+  // Daily Missions
+  const DAILY_MISSIONS = [
+    { id: 'speak_3',  label: '🎙️ Use voice 3 times',      goal: 3, xp: 30, field: 'voiceToday' },
+    { id: 'chat_5',   label: '💬 Send 5 messages',          goal: 5, xp: 25, field: 'msgsToday'  },
+    { id: 'comeback', label: '🔥 Keep your streak alive',   goal: 1, xp: 20, field: 'msgsToday'  },
   ];
 
   let gameState = JSON.parse(localStorage.getItem('speakup_game') || 'null') || {
@@ -1035,52 +1180,152 @@
     gameState.lastDate = today;
   }
 
-  function showXPPopup(amount) {
-    const el = document.createElement('div');
-    el.className = 'xp-popup';
-    el.textContent = '+' + amount + ' XP';
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1200);
+  // ── Kill-feed (FF right-side notifications) ──────────────────────
+  const kfWrap = document.createElement('div');
+  kfWrap.className = 'killfeed-wrap';
+  document.body.appendChild(kfWrap);
+
+  const KF_MSGS = ['🎯 Error Eliminated!','💥 Grammar Mastered!','⚡ Vocab Unlocked!','🔥 Fluency Boost!','🏹 Clean Shot!'];
+
+  function showKillfeed(xp) {
+    const msg  = KF_MSGS[Math.floor(Math.random() * KF_MSGS.length)];
+    const item = document.createElement('div');
+    item.className = 'killfeed-item';
+    item.innerHTML = `${msg} <span style="color:var(--teal);font-weight:700">+${xp} XP</span>`;
+    kfWrap.appendChild(item);
+    setTimeout(() => {
+      item.classList.add('out');
+      setTimeout(() => item.remove(), 400);
+    }, 2500);
   }
 
+  // ── BOOYAH! screen ────────────────────────────────────────────────
   function spawnConfetti() {
-    const colors = ['#c084fc','#f5a623','#4ecdc4','#e05c5c','#ffffff'];
-    for (let i = 0; i < 50; i++) {
+    const colors = ['#ffd700','#ff6b35','#c084fc','#4ecdc4','#fff'];
+    for (let i = 0; i < 60; i++) {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       el.style.cssText = `left:${Math.random()*100}vw;background:${colors[i%colors.length]};`
-        + `animation-delay:${Math.random()*0.6}s;animation-duration:${0.9+Math.random()*0.8}s;`
-        + `width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;`
-        + `border-radius:${Math.random()>0.5?'50%':'3px'};`;
+        + `animation-delay:${Math.random()*0.7}s;animation-duration:${0.9+Math.random()*0.9}s;`
+        + `width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;`
+        + `border-radius:${Math.random()>0.5?'50%':'2px'};`;
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2000);
+      setTimeout(() => el.remove(), 2200);
     }
   }
 
-  function showLevelUp(lvl) {
+  function showBooyah(rank) {
     const overlay = document.createElement('div');
-    overlay.className = 'levelup-overlay';
-    overlay.innerHTML = `<div class="levelup-card">
-      <div class="levelup-icon">${lvl.icon}</div>
-      <div class="levelup-title">Level Up!</div>
-      <div class="levelup-name">${lvl.name}</div>
-      <div class="levelup-sub">You're amazing! Keep going 🎉</div>
+    overlay.className = 'booyah-overlay';
+    overlay.innerHTML = `<div class="booyah-card">
+      <div class="booyah-rank-icon">${rank.icon}</div>
+      <div class="booyah-word">BOOYAH!</div>
+      <div class="booyah-rank">${rank.name}</div>
+      <div class="booyah-sub">Rank Up! Keep dominating 🔥</div>
     </div>`;
     document.body.appendChild(overlay);
     overlay.addEventListener('click', () => overlay.remove());
     spawnConfetti();
-    setTimeout(() => overlay.remove(), 3500);
+    setTimeout(() => overlay.remove(), 4000);
   }
 
+  // ── Airdrop (every 5th message) ───────────────────────────────────
+  function showAirdrop() {
+    const box = document.createElement('div');
+    box.className = 'airdrop-box';
+    box.textContent = '📦';
+    document.body.appendChild(box);
+
+    const label = document.createElement('div');
+    label.className = 'airdrop-label';
+    label.textContent = '📦 AIRDROP! +25 XP';
+    document.body.appendChild(label);
+
+    gameState.xp += 25;
+    saveGame();
+    updateGameBar();
+
+    setTimeout(() => { box.remove(); label.remove(); }, 2600);
+  }
+
+  // ── Badge toast ───────────────────────────────────────────────────
   function showBadgeToast(badge) {
     const el = document.createElement('div');
     el.className = 'badge-toast';
     el.innerHTML = `${badge.icon} <strong>${badge.name}</strong> Badge earned!`;
     document.body.appendChild(el);
     setTimeout(() => el.classList.add('show'), 50);
-    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3000);
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3200);
   }
 
+  // ── Daily Missions ────────────────────────────────────────────────
+  function getDailyState() {
+    const today = new Date().toISOString().slice(0, 10);
+    if (!gameState.daily || gameState.daily.date !== today) {
+      gameState.daily = { date: today, voiceToday: 0, msgsToday: 0, completed: [] };
+      saveGame();
+    }
+    return gameState.daily;
+  }
+
+  function showMissionComplete(mission) {
+    const el = document.createElement('div');
+    el.className = 'badge-toast';
+    el.innerHTML = `✅ <strong>Mission Complete!</strong> ${mission.label} +${mission.xp} XP`;
+    document.body.appendChild(el);
+    setTimeout(() => el.classList.add('show'), 50);
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3500);
+  }
+
+  function tickMissions(isVoice) {
+    const d = getDailyState();
+    d.msgsToday  += 1;
+    if (isVoice) d.voiceToday += 1;
+    for (const m of DAILY_MISSIONS) {
+      if (!d.completed.includes(m.id) && (d[m.field] || 0) >= m.goal) {
+        d.completed.push(m.id);
+        gameState.xp += m.xp;
+        saveGame();
+        updateGameBar();
+        setTimeout(() => showMissionComplete(m), 2200);
+      }
+    }
+    saveGame();
+  }
+
+  function toggleMissionsPanel() {
+    const existing = document.getElementById('missions-overlay');
+    if (existing) { existing.remove(); return; }
+    const d = getDailyState();
+    const html = DAILY_MISSIONS.map(m => {
+      const prog = Math.min(m.goal, d[m.field] || 0);
+      const pct  = Math.round((prog / m.goal) * 100);
+      const done = d.completed.includes(m.id);
+      return `<div class="mission-card">
+        <div class="mission-row">
+          <span class="mission-label">${m.label}</span>
+          ${done ? '<span class="mission-done-label">✅ Done!</span>'
+                 : `<span class="mission-xp">+${m.xp} XP</span>`}
+        </div>
+        <div class="mpbar"><div class="mpbar-fill" style="width:${pct}%"></div></div>
+        <div class="mission-count">${prog} / ${m.goal}</div>
+      </div>`;
+    }).join('');
+    const overlay = document.createElement('div');
+    overlay.className = 'missions-overlay';
+    overlay.id = 'missions-overlay';
+    overlay.innerHTML = `<div class="missions-sheet">
+      <div class="missions-title">🎯 Daily Missions
+        <span style="font-size:0.7rem;color:var(--muted);font-weight:400;margin-left:auto">Resets daily</span>
+      </div>
+      ${html}
+      <button class="close-sheet-btn" onclick="document.getElementById('missions-overlay').remove()">Close</button>
+    </div>`;
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
+  // ── Main XP award ─────────────────────────────────────────────────
   function addXP(isVoice) {
     checkStreak();
     const earned   = isVoice ? 15 : 10;
@@ -1092,13 +1337,15 @@
     gameState.level = newLvl.level;
     saveGame();
     updateGameBar();
-    showXPPopup(earned);
-    if (newLvl.level > oldLevel) setTimeout(() => showLevelUp(newLvl), 700);
+    showKillfeed(earned);
+    tickMissions(isVoice);
+    if (newLvl.level > oldLevel) setTimeout(() => showBooyah(newLvl), 700);
+    if (gameState.totalMessages % 5 === 0) setTimeout(showAirdrop, 500);
     for (const badge of BADGES) {
       if (!gameState.badges.includes(badge.id) && badge.check(gameState)) {
         gameState.badges.push(badge.id);
         saveGame();
-        setTimeout(() => showBadgeToast(badge), 1600);
+        setTimeout(() => showBadgeToast(badge), 1800);
       }
     }
   }
