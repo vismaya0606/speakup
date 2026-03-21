@@ -973,11 +973,11 @@
       <div class="logo-icon">🗣️</div>
       <h1>SpeakUp</h1>
     </div>
-    <p class="tagline">Speak Tamil · Get English explanation · Hear it aloud</p>
+    <p class="tagline">Tamil-la paesu · Tanglish-la theriyum · English kelu!</p>
     <div class="lang-badge-row">
-      <span class="lang-badge tamil">🎤 தமிழில் பேசுங்கள்</span>
+      <span class="lang-badge tamil">🎤 Tamil-la பேசு</span>
       <span class="arrow-icon">→</span>
-      <span class="lang-badge english">🔊 English Answer</span>
+      <span class="lang-badge english">💬 Tanglish Answer</span>
     </div>
   </header>
 
@@ -1033,12 +1033,11 @@
       <div class="avatar ai">🤖</div>
       <div class="bubble">
         <button class="speak-bubble-btn" onclick="speakBubble(this)" title="Listen">🔊</button>
-        <div class="section-label answer">👋 வணக்கம்! Hello!</div>
+        <div class="section-label answer">👋 Vanakkam da!</div>
         <div class="section-content">
-          I am <span class="highlight-word">Vismaya</span>, your English conversation partner!
-          Tap the 🎙️ orb above to start talking — I will listen, answer, and keep chatting with you!
-          You can speak in Tamil, and I will help you learn English through real conversation. 😊
-          <div class="example-sentence">What is your name? Try saying: "My name is ___"</div>
+          I'm <span class="highlight-word">Vismaya</span> — unga English bestie! 🎮
+          Mic-a tap panni Tamil-la pesungo, naan Tanglish-la explain panren!
+          <div class="example-sentence">Try saying: "My name is ___" — simple-a start panlam!</div>
         </div>
       </div>
     </div>
@@ -1051,7 +1050,7 @@
       <div class="orb-ring" id="orb-ring"></div>
     </div>
     <div class="convo-label" id="convo-label">Tap to talk to Vismaya</div>
-    <div class="convo-hint">தொடர்ந்து பேசுங்கள் — Vismaya listens after every reply 🔄</div>
+    <div class="convo-hint">Paesu paesu — Vismaya reply panra udan again kekka ready 🔄</div>
   </div>
 
   <div class="or-divider">or type below</div>
@@ -1060,7 +1059,7 @@
   <div class="input-panel">
     <div class="input-hint">
       <span class="dot-hint"></span>
-      🎤 பேசுங்கள் அல்லது தட்டச்சு செய்யுங்கள் (Speak or type in Tamil)
+      🎤 Tamil-la paesu illa type pannu — Tanglish-la solren!
     </div>
 
     <div class="voice-preview" id="voice-preview"></div>
@@ -1096,9 +1095,9 @@
   </div>
 
   <div class="footer-note">
-    Powered by Gemini AI + Web Speech API (Tamil Recognition + English TTS)<br>
-    தமிழில் பேசுங்கள் → English கேளுங்கள் 🎧<br>
-    Thanks to Vismaya
+    Powered by Gemini AI + Web Speech API 🎧<br>
+    Tamil-la paesu → Tanglish-la kelu!<br>
+    Made with ❤️ for Vismaya
   </div>
 
 </div>
@@ -1667,23 +1666,25 @@
     };
 
     return `You are Vismaya, a fun English conversation partner for Tamil-speaking beginners.
+You talk like a Chennai bestie — casual, warm, Tanglish. Never stiff or formal.
 
 Rules (STRICT):
 - Max 2 sentences per section. No long paragraphs.
 - This is displayed on screen and spoken aloud.
 - Topic: ${currentTopic}. ${topicGuide[currentTopic]}
-- Your name is Vismaya. If asked, say "I am Vismaya! What is your name?"
+- Your name is Vismaya. If asked, say "I am Vismaya da! Unga name enna?"
+- Encourage casually: "Dei super da!", "Ayyo, almost!", "Nalla try panna!"
 
 Output ONLY this HTML (nothing else):
 
 <div class="section-label answer">✅ Vismaya says</div>
-<div class="section-content">[1-2 sentences in English. If they spoke Tamil, start with "Nice!" or "Great!" to encourage.]</div>
+<div class="section-content">[1-2 sentences in simple conversational English. Be friendly, not textbook.]</div>
 
-<div class="section-label translation">🇮🇳 தமிழில் புரிந்துகொள்</div>
-<div class="section-content">[Same answer in 1-2 simple Tamil sentences so they fully understand.]</div>
+<div class="section-label translation">💬 Tanglish-la சொல்றேன்</div>
+<div class="section-content">[Explain the same thing in casual Tanglish — naturally mix Tamil + English words the way Chennai friends actually talk. Example: "Inga 'He goes' use panuva, because present tense-la subject singular-a iruntha verb-ku 's' add pannanum da."]</div>
 
 <div class="section-label usage">🗣️ Try saying</div>
-<div class="section-content"><div class="example-sentence"><span class="highlight-word">key word</span> in a short sentence</div>Then one short follow-up question to keep talking.</div>
+<div class="section-content"><div class="example-sentence"><span class="highlight-word">key word</span> in a short sentence</div>Then one short casual follow-up question to keep talking.</div>
 
 Student's message: ${userText}`;
   }
