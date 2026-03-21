@@ -705,6 +705,129 @@
     content: ''; flex: 1; height: 1px; background: var(--border);
   }
 
+  /* ── Gamification ─────────────────────────────────────────────── */
+  .game-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 8px 14px;
+    margin-bottom: 10px;
+  }
+
+  .game-level {
+    display: flex; align-items: center; gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .level-icon { font-size: 1.2rem; }
+
+  .level-name {
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--tamil); white-space: nowrap;
+  }
+
+  .xp-bar-wrap {
+    flex: 1; height: 8px;
+    background: var(--border);
+    border-radius: 99px; overflow: hidden;
+  }
+
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--tamil), var(--teal));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+    width: 0%;
+  }
+
+  .game-right {
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .xp-count { font-size: 0.72rem; color: var(--muted); }
+
+  .streak-badge {
+    font-size: 0.75rem; font-weight: 600;
+    background: rgba(245,166,35,0.12);
+    border: 1px solid rgba(245,166,35,0.25);
+    color: var(--accent);
+    padding: 2px 8px; border-radius: 99px;
+  }
+
+  /* XP popup */
+  .xp-popup {
+    position: fixed;
+    bottom: 30%; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--tamil), var(--teal));
+    color: #fff; font-weight: 700; font-size: 1rem;
+    padding: 6px 18px; border-radius: 99px;
+    pointer-events: none; z-index: 999;
+    animation: xp-float 1.1s ease-out forwards;
+  }
+
+  @keyframes xp-float {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(0);   }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; transform: translateX(-50%) translateY(-40px); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+  }
+
+  /* Level-up overlay */
+  .levelup-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.7);
+    animation: fade-in 0.3s ease;
+  }
+
+  .levelup-card {
+    background: var(--card);
+    border: 1px solid var(--tamil);
+    border-radius: 24px;
+    padding: 40px 50px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(192,132,252,0.3);
+    animation: pop-in 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .levelup-icon  { font-size: 3.5rem; margin-bottom: 8px; }
+  .levelup-title { font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+  .levelup-name  { font-size: 2rem; font-weight: 700; color: var(--tamil); margin: 4px 0; }
+  .levelup-sub   { font-size: 0.9rem; color: var(--muted); margin-top: 8px; }
+
+  @keyframes pop-in  { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed; top: -10px; z-index: 1001;
+    pointer-events: none;
+    animation: confetti-fall linear forwards;
+  }
+
+  @keyframes confetti-fall {
+    0%   { transform: translateY(0)   rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Badge toast */
+  .badge-toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card);
+    border: 1px solid var(--teal);
+    color: var(--text);
+    padding: 10px 20px; border-radius: 12px;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 20px rgba(78,205,196,0.3);
+    z-index: 998; transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap;
+  }
+
+  .badge-toast.show { transform: translateX(-50%) translateY(0); }
+
   @media (max-width: 600px) {
     h1 { font-size: 1.5rem; }
     #chat-window { height: 320px; }
@@ -728,6 +851,21 @@
       <span class="lang-badge english">🔊 English Answer</span>
     </div>
   </header>
+
+  <!-- Game Bar -->
+  <div class="game-bar" id="game-bar">
+    <div class="game-level">
+      <span class="level-icon" id="level-icon">🌱</span>
+      <span class="level-name" id="level-name">Beginner</span>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div>
+    </div>
+    <div class="game-right">
+      <span class="xp-count" id="xp-count">0 XP</span>
+      <span class="streak-badge" id="streak-badge">🔥 0</span>
+    </div>
+  </div>
 
   <div class="browser-notice" id="browser-notice">
     ⚠️ Voice input requires Chrome or Edge browser. You can still type your question below.
@@ -842,6 +980,131 @@
   let isRecording = false;
   let activeSpeakBtn = null;
   let conversationMode = false;
+  let _lastWasVoice = false;
+
+  // ── Gamification ──────────────────────────────────────────────────────────
+  const LEVELS = [
+    { level: 1, name: 'Beginner',  icon: '🌱', xp: 0    },
+    { level: 2, name: 'Talker',    icon: '🗣️',  xp: 100  },
+    { level: 3, name: 'Learner',   icon: '📖',  xp: 250  },
+    { level: 4, name: 'Speaker',   icon: '🎤',  xp: 500  },
+    { level: 5, name: 'Star',      icon: '⭐',  xp: 1000 },
+    { level: 6, name: 'Champion',  icon: '🏆',  xp: 2000 },
+  ];
+
+  const BADGES = [
+    { id: 'first_message', icon: '💬', name: 'First Chat!',  check: g => g.totalMessages >= 1  },
+    { id: 'first_voice',   icon: '🎙️', name: 'Voice Star!',  check: g => g.voiceMessages >= 1  },
+    { id: 'chatterbox',    icon: '🗨️', name: 'Chatterbox!',  check: g => g.totalMessages >= 10 },
+    { id: 'on_fire',       icon: '🔥', name: 'On Fire!',     check: g => g.streak >= 3         },
+    { id: 'level_up',      icon: '📈', name: 'Level Up!',    check: g => g.level >= 2          },
+    { id: 'scholar',       icon: '🎓', name: 'Scholar!',     check: g => g.level >= 4          },
+  ];
+
+  let gameState = JSON.parse(localStorage.getItem('speakup_game') || 'null') || {
+    xp: 0, level: 1, streak: 0, lastDate: null,
+    totalMessages: 0, voiceMessages: 0, badges: [],
+  };
+
+  function saveGame() { localStorage.setItem('speakup_game', JSON.stringify(gameState)); }
+
+  function getCurrentLevel() {
+    let cur = LEVELS[0];
+    for (const l of LEVELS) { if (gameState.xp >= l.xp) cur = l; }
+    return cur;
+  }
+
+  function updateGameBar() {
+    const cur  = getCurrentLevel();
+    const next = LEVELS.find(l => l.level === cur.level + 1);
+    document.getElementById('level-icon').textContent  = cur.icon;
+    document.getElementById('level-name').textContent  = cur.name;
+    document.getElementById('xp-count').textContent    = gameState.xp + ' XP';
+    document.getElementById('streak-badge').textContent = '🔥 ' + gameState.streak;
+    const pct = next
+      ? Math.min(100, Math.round(((gameState.xp - cur.xp) / (next.xp - cur.xp)) * 100))
+      : 100;
+    document.getElementById('xp-bar-fill').style.width = pct + '%';
+  }
+
+  function checkStreak() {
+    const today = new Date().toISOString().slice(0, 10);
+    if (gameState.lastDate === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    gameState.streak  = gameState.lastDate === yesterday ? gameState.streak + 1 : 1;
+    gameState.lastDate = today;
+  }
+
+  function showXPPopup(amount) {
+    const el = document.createElement('div');
+    el.className = 'xp-popup';
+    el.textContent = '+' + amount + ' XP';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+  }
+
+  function spawnConfetti() {
+    const colors = ['#c084fc','#f5a623','#4ecdc4','#e05c5c','#ffffff'];
+    for (let i = 0; i < 50; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `left:${Math.random()*100}vw;background:${colors[i%colors.length]};`
+        + `animation-delay:${Math.random()*0.6}s;animation-duration:${0.9+Math.random()*0.8}s;`
+        + `width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;`
+        + `border-radius:${Math.random()>0.5?'50%':'3px'};`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2000);
+    }
+  }
+
+  function showLevelUp(lvl) {
+    const overlay = document.createElement('div');
+    overlay.className = 'levelup-overlay';
+    overlay.innerHTML = `<div class="levelup-card">
+      <div class="levelup-icon">${lvl.icon}</div>
+      <div class="levelup-title">Level Up!</div>
+      <div class="levelup-name">${lvl.name}</div>
+      <div class="levelup-sub">You're amazing! Keep going 🎉</div>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', () => overlay.remove());
+    spawnConfetti();
+    setTimeout(() => overlay.remove(), 3500);
+  }
+
+  function showBadgeToast(badge) {
+    const el = document.createElement('div');
+    el.className = 'badge-toast';
+    el.innerHTML = `${badge.icon} <strong>${badge.name}</strong> Badge earned!`;
+    document.body.appendChild(el);
+    setTimeout(() => el.classList.add('show'), 50);
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3000);
+  }
+
+  function addXP(isVoice) {
+    checkStreak();
+    const earned   = isVoice ? 15 : 10;
+    const oldLevel = getCurrentLevel().level;
+    gameState.xp            += earned;
+    gameState.totalMessages += 1;
+    if (isVoice) gameState.voiceMessages += 1;
+    const newLvl = getCurrentLevel();
+    gameState.level = newLvl.level;
+    saveGame();
+    updateGameBar();
+    showXPPopup(earned);
+    if (newLvl.level > oldLevel) setTimeout(() => showLevelUp(newLvl), 700);
+    for (const badge of BADGES) {
+      if (!gameState.badges.includes(badge.id) && badge.check(gameState)) {
+        gameState.badges.push(badge.id);
+        saveGame();
+        setTimeout(() => showBadgeToast(badge), 1600);
+      }
+    }
+  }
+
+  // Init on load
+  updateGameBar();
 
   // ── Conversation Orb helpers ──────────────────────────────────────────────
   function setConvoOrb(state, labelText) {
@@ -920,6 +1183,7 @@
       if (text) {
         document.getElementById('voice-preview').textContent = '';
         if (conversationMode) setConvoOrb('', '⏳ Vismaya is thinking...');
+        _lastWasVoice = true;
         setTimeout(() => sendMessage(), 350);
       } else if (conversationMode) {
         // No speech detected — keep listening
@@ -1195,7 +1459,8 @@ Student's message: ${userText}`;
     return { status: res.status, data };
   }
 
-  async function sendMessage() {
+  async function sendMessage(fromVoice = false) {
+    if (fromVoice) _lastWasVoice = true;
     const input = document.getElementById('user-input');
     const text = input.value.trim();
     if (!text) return;
@@ -1233,6 +1498,8 @@ Student's message: ${userText}`;
         conversationHistory.push({ role: 'assistant', content: aiText });
         if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
         appendAIMessage(aiText);
+        addXP(_lastWasVoice);
+        _lastWasVoice = false;
         setStatus('idle', 'Ready — tap 🎤 to speak in Tamil');
       } else if (status === 429) {
         appendAIMessage('<div class="section-content" style="color:#e05c5c">⚠️ API quota exceeded. Please try again later.</div>');
